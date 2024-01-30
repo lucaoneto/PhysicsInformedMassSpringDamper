@@ -67,10 +67,87 @@ The code solves the equations $\text{(Eq1)}$ and $\text{(Eq2)}$ and extract 22 s
 - Dataset $\mathcal{D}^{2, \sigma}_n$ from $\text{(Eq2)}$ and adding random noise
 
 The whole process is repeated 30 times, to average the random effect of the noise.
-Data are saved in 30 files, named DatGen_SeedN.mat.
+Data are saved in 30 files, named DatGen_SeedX.mat.
 
 ## FKPM
-In FKPM we put the script FKPM.m that models the full-knowledge approach.
+In FKPM you can find the script FKPM.m, containing the full-knowledge approach.
 This model is built to solve the $\text{(Eq1)}$. 
 We assume to not know the parameters $k_0$, $\mu$, and $u_0$, that are grid searched in the range $[10^{-1}, 10^{3}]$. 
-
+The algorithm search for the best combination of $k_0$, $\mu$, and $u_0$ that produces the lowest error on the dataset. 
+Note that the dataset used for this approach is reduced by 1/3 with respect to the original (see Section 4 - Illustrative Example).
+The script can be modified, according to the scenario of interest:
+- Surrogation scenario with no noise: to use the Dataset $\mathcal{D}^{1, 0}_n$, lines 11 and 12 must be set as:
+  ```sh
+    D  = D_l_nn;
+    p  = p_l;
+   ```
+  - Surrogation scenario with noise: to use the Dataset $\mathcal{D}^{1, \sigma}_n$, lines 11 and 12 must be set as:
+  ```sh
+    D  = D_l_n;
+    p  = p_l;
+   ```
+  - Modeling scenario with no noise: to use the Dataset $\mathcal{D}^{2, 0}_n$, lines 11 and 12 must be set as:
+  ```sh
+    D  = D_nl_nn;
+    p  = p_nl;
+   ```
+  - Modeling scenario with noise: to use the Dataset $\mathcal{D}^{2, \sigma}_n$, lines 11 and 12 must be set as:
+  ```sh
+    D  = D_nl_n;
+    p  = p_nl;
+   ```
+To average the random noise effect, the script performs 30 repetitions (line 6):
+```sh
+for seed=1:30
+```
+In scenarios with no noise, all the repetitions are identical. Then, it is convenient to perform only 1 repetition by setting line 6 as:
+```sh
+for seed=1:1
+```
+According to the selected scenario, the script will save 2 files:
+- FKPM_X_X containing the evalutation of MAE is interpolation $[0,t_m]$ and extrapolation $(t_m, t_f]$, and the best values of $k_0$, $\mu$ for each repetition of the selected scenario 
+- FKris_X_X containing the predicted $u(t)$ of the last repetition
+  
+## ZKPM
+In ZKPM you can find the script ZKPM.m, containing the zero-knowledge approach.
+We implemented a data-driven technique of structural risk minimization.
+The functional form is a polynomial:
+$$f(x) = \sum_{i= 0}^p w_i x^i$$
+The loss function is defined as (see Section 4 - Illustrative Example):
+$$l(w)= \quad \|| X \boldsymbol{w} - \boldsymbol{y} \||^2 + \lambda \boldsymbol{w}' C \boldsymbol{w}$$
+The loss can be minimized in closed form:
+$$\boldsymbol{w} = (X' X + \lambda C)^+ X' \boldsymbol{y}$$
+The model has two hyperparameters: the polynomial grad $p$ and the regularization coefficient $\lambda$.
+They are optimized on the validation set, built adopting the leave-one-out method.
+The script can be modified, according to the scenario of interest:
+- Surrogation scenario with no noise: to use the Dataset $\mathcal{D}^{1, 0}_n$, lines 11 and 12 must be set as:
+  ```sh
+    D  = D_l_nn;
+    p  = p_l;
+   ```
+  - Surrogation scenario with noise: to use the Dataset $\mathcal{D}^{1, \sigma}_n$, lines 11 and 12 must be set as:
+  ```sh
+    D  = D_l_n;
+    p  = p_l;
+   ```
+  - Modeling scenario with no noise: to use the Dataset $\mathcal{D}^{2, 0}_n$, lines 11 and 12 must be set as:
+  ```sh
+    D  = D_nl_nn;
+    p  = p_nl;
+   ```
+  - Modeling scenario with noise: to use the Dataset $\mathcal{D}^{2, \sigma}_n$, lines 11 and 12 must be set as:
+  ```sh
+    D  = D_nl_n;
+    p  = p_nl;
+   ```
+To average the random noise effect, the script performs 30 repetitions (line 6):
+```sh
+for seed=1:30
+```
+In scenarios with no noise, all the repetitions are identical. Then, it is convenient to perform only 1 repetition by setting line 6 as:
+```sh
+for seed=1:1
+```
+According to the selected scenario, the script will save 2 files:
+- ZKPM_X_X containing the evalutation of MAE is interpolation $[0,t_m]$ and extrapolation $(t_m, t_f]$, for each repetition of the selected scenario 
+- ZKris_X_X containing the predicted $u(t)$ of the last repetition

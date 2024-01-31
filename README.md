@@ -2,6 +2,41 @@
 
 In this repository, you can find the code of the toy example proposed in the paper "A Review on Full-, Zero-, and Partial-Knowledge based Predictive Models for Industrial Applications" (Section 4 - Illustrative Example).
 
+- Fisica dell'esempio mass-spring-damper:
+  - modello lineare
+  - modello non lineare
+- Intro: 
+  - cosa vogliamo fare? abbiamo un mass-spring-damper, possiamo misurare alcuni dati e vogliamo predirre la posizione della massa nel tempo
+  - L'obbiettivo è paragonare 3 tecniche: fkpm, zkpm, pkpm
+  - In che modo? Analizziamo 4 scenari (lineare con e senza noise, non lineare con e senza noise). Generiamo un dataset sintetico per ogni scenario. Con ciascuna delle 3 tecniche affrontiamo i 4 scenari.
+  - Per ciacuna analisi, dire che facciamo 30 ripetizioni per robustezza sul noise. Dove non c'è noise non ci sono ripetizioni
+  - Come è organizzato il repository? 5 file principali: data generation, fkpm, zkpm, pkpm, risultati; 3 file ausiliari: eulero...; 2 file di risultato: RisTab e RisPlot.
+- Data generation:
+  - Cosa fa? Risolve le equazioni differenziali lineare e non lineare "ground truth" con eulero. Crea i dataset (per ogni scenario, 30 iterazioni). Nel file salva anche cose aggiuntive (time, u(t)...)
+- FKPM:
+  - Cosa fa? Risolve l'equazione differenziale con eulero, ma non ha i parametri. Prende il dataset e fa grid search sui parametri in base all'errore prodotto sul dataset.
+  - FKPM usa 1/3 dei dati (fairy comparison).
+  - salva i risultati in due file: FKPM_X_X salva errori, tempi medi, k_best e m_best nelle tabelle (per ciscuna ripetizione), FKRis_X_X salva il vettore della soluzione u(t) dell'ultima ripòetizione
+  - Ciascun run risolve uno scenario. Dire come impostare lo scenario.
+  - Per gli scenari con noise impostare le 30 ripetizioni
+- ZKPM:
+  - Cosa fa? Fitta un polinomio di grado p sui dati con regolarizzazione sull'integrale della derivata seconda. 2 iperparametri p e lambda, trovati con grid search.
+  - Minimizzazione della loss in forma chiusa. 
+  - salva i risultati in due file:  ZKPM_X_X salva errori e tempi medi nelle tabelle (per ciscuna ripetizione), ZKRis_X_X salva il vettore della soluzione u(t) dell'ultima ripòetizione
+  - Ciascun run risolve uno scenario. Dire come impostare lo scenario.
+  - Per gli scenari con noise impostare le 30 ripetizioni
+- PKPM:
+  - Cosa fa? Fitta un polinomio di grado p sui dati con regolarizzazione sull'integrale della derivata seconda e con vincolo fisico sull'equazione differenziale. I parametri dell'equazione differenziale sono corretti nello scenario surrogate, mentre nello scenario modeling sono tunati con FKPM. 3 iperparametri p e lambda1, e lambda2 trovati con grid search.
+  - Minimizzazione della loss in forma chiusa. 
+  - salva i risultati in due file: PKPM_X_X salva errori e tempi medi nelle tabelle (per ciscuna ripetizione), PKRis_X_X salva il vettore della soluzione u(t) dell'ultima ripòetizione
+  - Ciascun run risolve uno scenario. Dire come impostare lo scenario.
+  - Per gli scenari con noise impostare le 30 ripetizioni
+- Risultati
+  - RisPlot: Prende i file FKRis_X_X,ZKRis_X_X,PKRis_X_X e crea un plot unico. Ciascun run risolve uno scenario. Dire come impostare lo scenario.
+  - RisTab: Prende i file FKPM_X_X,ZKPM_X_X,PKPM_X_X e crea le tabelle di: mediana (sulle ripetizioni) dell'errore in interpolazione, mediana (sulle ripetizioni) dell'errore in estrapolazione, varianza (sulle ripetizioni) dell'errore in interpolazione, varianza (sulle ripetizioni) dell'errore in estrapolazione, varianza (sulle ripetizioni) gaussiana dell'errore in interpolazione, varianza gaussiana (sulle ripetizioni) dell'errore in estrapolazione, tempo medio (sulle ripetizioni) di training, tempo medio (sulle ripetizioni) di testing. Ciascuna tabella contiene i dati per ogni scenario.
+ 
+
+
 ## Underlying physics
 The toy example analyzes a mass-spring-damper system with no external force applied. 
 

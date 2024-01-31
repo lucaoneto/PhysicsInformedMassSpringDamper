@@ -84,15 +84,9 @@ Our procedure is the following:
 - The four scenarios approached with FKPM
 - The four scenarios approached with ZKPM
 - The four scenarios approached with PKPM
-- Results analysis
+- Analysis of results
 
-Accordingly, the code is organized in 5 folders:
-- Data Generation
-- FKPM
-- ZKPM
-- PKPM
-- Results
-
+<!---
 ## Data Generation
 In Data Generation we stored the script DatGen.m that produces the datasets. 
 The code solves the equations $\text{(Eq1)}$ and $\text{(Eq2)}$ and extract 22 samples for each scenario:
@@ -186,3 +180,5 @@ for seed=1:1
 According to the selected scenario, the script will save 2 files:
 - ZKPM_X_X containing the evalutation of MAE is interpolation $[0,t_m]$ and extrapolation $(t_m, t_f]$, for each repetition of the selected scenario 
 - ZKris_X_X containing the predicted $u(t)$ of the last repetition
+
+-->

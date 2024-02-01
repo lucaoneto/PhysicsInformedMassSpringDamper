@@ -38,11 +38,11 @@ In this repository, you can find the code of the toy example proposed in the pap
 
 
 ## Underlying physics
-The toy example analyzes a mass-spring-damper system with no external force applied. 
+The toy example analyzes a mass-spring-damper system with no external force applied. We consider the case of the mass initially positioned at a specific point $u_0$, that is left free to evolve autonomously over time.
 
-![4](https://github.com/lucaoneto/PhisicsInformedMassSpringDamper/assets/158032647/119b7700-74e8-4225-94cb-168d1f228c49)
+<img src='figure/4.png' width='25'>
 
-We consider the case of the mass initially positioned at a specific point $u_0$, that is left free to evolve autonomously over time.
+![4](https://github.com/lucaoneto/PhisicsInformedMassSpringDamper/assets/158032647/119b7700-74e8-4225-94cb-168d1f228c49 | width=30)
 
 In the simplest case, a mass-spring-damper system can be described by a second-order differential equation
 $$m \frac{d^2 u(t)}{d t^2} + \mu \frac{d u(t)}{d t} + k_0 u(t) = 0 \quad \text{(Eq1)}$$

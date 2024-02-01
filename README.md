@@ -60,22 +60,22 @@ Here process outline:
 
 ## Repository
 The repository cointains five main scripts:
-- [DATGEN.m](DATGEN.m), (Data generation);
-- [FKPM.m](FKPM.m), (FKPM);
-- [ZKPM.m](ZKPM.m), (ZKPM);
-- [PKPM.m](PKPM.m), (PKPM);
-- [RISTAB.m](RISTAB.m), (Table of results);
-- [RISPLOT.m](RISPLOT.m), (Plot of results);
+- [DATGEN.m](DATGEN.m) (Data generation);
+- [FKPM.m](FKPM.m) (FKPM);
+- [ZKPM.m](ZKPM.m) (ZKPM);
+- [PKPM.m](PKPM.m) (PKPM);
+- [RISTAB.m](RISTAB.m) (Table of results);
+- [RISPLOT.m](RISPLOT.m) (Plot of results);
 
 four utility scripts:
-- scenario_selection.m (UI for the scenario selection);
-- linear_mass_spring_damper.m ($\text{(Eq1)}$);
-- nonlinear_mass_spring_damper.m ($\text{(Eq2)}$);
-- euler_solver.m (Differential equation Euler-method solver);
+- [scenario_selection.m](scenario_selection.m) (UI for the scenario selection);
+- [linear_mass_spring_damper.m](linear_mass_spring_damper.m) (Implementing $\text{(Eq1)}$);
+- [nonlinear_mass_spring_damper.m](nonlinear_mass_spring_damper.m) (Implementing $\text{(Eq2)}$);
+- [euler_solver.m](euler_solver.m) (Differential equation Euler-method solver);
 
 and two folders:
-- Data (Containing the datasets);
-- Results (Contining the results).
+- [Data](Data) (Containing the datasets);
+- [Results](Results) (Contining the results).
 
 ## Code
 ### [DATGEN.m](DATGEN.m)

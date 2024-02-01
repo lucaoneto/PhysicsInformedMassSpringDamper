@@ -124,4 +124,4 @@ Tab = array2table([tab_medn(1:2,:);tab_mean(1:2,:);tab_var(1:2,:);tab_sdg(1:2,:)
     'Median - Interpolation Error (Modeling)','Median - Extrapolation Error (Modeling)','Mean - Interpolation Error (Modeling)','Mean - Extrapolation Error (Modeling)', ...
     'Variance - Interpolation Error (Modeling)','Variance - Extrapolation Error (Modeling)','StndDev (Gaussian) - Interpolation Error (Modeling)','StndDev (Gaussian) - Extrapolation Error (Modeling)'});
 
-writetable(Tab,'ResTab_.xlsx','Sheet',1,'WriteRowNames',true)
+writetable(Tab,'ResTab.xlsx','Sheet',1,'WriteRowNames',true)

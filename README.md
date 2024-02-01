@@ -78,7 +78,7 @@ and two folders:
 - Results (Contining the results).
 
 ## Code
-### `DATGEN.m`
+### [DATGEN.m](DATGEN.m)
 `DATGEN.m` solves the ground truth solutions $\text{(Eq1)}$ and $\text{(Eq2)}$, samples the datasets $\mathcal{D}^{1, 0}_n$, $\mathcal{D}^{1, \sigma}_n$, $\mathcal{D}^{2, 0}_n$, and $\mathcal{D}^{2, \sigma}_n$, plots the solutions and saves the datasets in the folder Data.
 
 The differential equations $\text{(Eq1)}$ and $\text{(Eq2)}$ are solved with the Euler method.
@@ -88,7 +88,7 @@ The script performs the random noise addition for 30 repetitions and saves a fil
 Each file contains the datasets $\mathcal{D}^{1, 0}_n$ (`D_l_nn`), $\mathcal{D}^{1, \sigma}_n$ (`D_l_n`), $\mathcal{D}^{2, 0}_n$ (`D_nl_nn`), and $\mathcal{D}^{2, \sigma}_n$ (`D_nl_n`), the value of $m$ (`m`), the vector of the time instants of function evaluation (`t`), the solution $u(t)$ of $\text{(Eq1)}$ and $\text{(Eq2)}$ (`u_l` and `u_nl`), the integration step (`dt`), the number of integration steps (`num_steps`), the step number of $t_m$ (`itm`), and the step number of the sampled data (`ix`):
 For the last repetition, `DATGEN.m` also plots the ground truth solution of $\text{(Eq1)}$ and $\text{(Eq2)}$, the comparison plot, and some of the sampled points.
 
-### `FKPM.m`
+### [FKPM.m](FKPM.m)
 `FKPM.m` is the full-knowledge approach.
 
 When the user runs `FKPM.m`, the interface ask for the selection of the scenario between: Surrogation scenario with no noise, Surrogation scenario with noise, Modeling scenario with no noise, Modeling scenario with noise.
@@ -108,7 +108,7 @@ The results are saved in the file `FKRes_Y.mat` (where `Y` indicates the scenari
 The file contains the errors in interpolation and extapolation for each repetition (`err_int` and `err_est`), the mean time of training and testing (`time_train` and `time_test`), the dataset (`D`), the vector of the time instants of function evaluation (`t`), the ground truth solution (`u`) and the best predcited by FKPM (`u_p`).
 The script plots the comparison between the ground truth solution and the best predicted, with the dataset points.
 
-### `ZKPM.m`
+### [ZKPM.m](ZKPM.m)
 `ZKPM.m` is the zero-knowledge approach.
 
 When the user runs `ZKPM.m`, the interface ask for the selection of the scenario between: Surrogation scenario with no noise, Surrogation scenario with noise, Modeling scenario with no noise, Modeling scenario with noise.
@@ -135,7 +135,7 @@ The results are saved in the file `ZKRes_Y.mat` (where `Y` indicates the scenari
 The file contains the errors in interpolation and extapolation for each repetition (`err_int` and `err_est`), the mean time of training and testing (`time_train` and `time_test`), the dataset (`D`), the vector of the time instants of function evaluation (`t`), the ground truth solution (`u`) and the one predcited by ZKPM (`u_p`).
 The script plots the comparison between the ground truth solution and the best predicted, with the dataset points.
 
-### `PKPM.m`
+### [PKPM.m](PKPM.m)
 `PKPM.m` is the partial-knowledge approach.
 
 When the user runs `PKPM.m`, the interface ask for the selection of the scenario between: Surrogation scenario with no noise, Surrogation scenario with noise, Modeling scenario with no noise, Modeling scenario with noise.
@@ -161,7 +161,7 @@ The results are saved in the file `PKRes_Y.mat` (where `Y` indicates the scenari
 The file contains the errors in interpolation and extapolation for each repetition (`err_int` and `err_est`), the mean time of training and testing (`time_train` and `time_test`), the dataset (`D`), the vector of the time instants of function evaluation (`t`), the ground truth solution (`u`) and the best predcited by PKPM (`u_p`).
 The script plots the comparison between the ground truth solution and the best predicted, with the dataset points.
 
-### `RESPLOT.m`
+### [RISPLOT.m](RISTAB.m)
 `RESPLOT.m` is used to plot and compare the predicted solutions.
 
 When the user runs `PKPM.m`, the interface ask for the selection of the scenario between: Surrogation scenario with no noise, Surrogation scenario with noise, Modeling scenario with no noise, Modeling scenario with noise.
@@ -169,7 +169,7 @@ According to the selected scenario, the script loads the results of FKPM, ZKPM, 
 
 The script plots the ground truth, the dataset and the three predicted solution in the same graph and saves the image.
 
-### `RESTAB.m`
+### [RISTAB.m](RISTAB.m)
 `RESPLOT.m` is used to create a table of the results.
 
 The script loads the results of FKPM, ZKPM, and PKPM in all the scenarios and creates a table containing all the results.

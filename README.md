@@ -1,186 +1,182 @@
-# PhisicsInformedMassSpringDamper
+# PhisicsInformedMassSpringDamper 
 
 In this repository, you can find the code of the toy example proposed in the paper "A Review on Full-, Zero-, and Partial-Knowledge based Predictive Models for Industrial Applications" (Section 4 - Illustrative Example).
 
-- Fisica dell'esempio mass-spring-damper:
-  - modello lineare
-  - modello non lineare
-- Intro: 
-  - cosa vogliamo fare? abbiamo un mass-spring-damper, possiamo misurare alcuni dati e vogliamo predirre la posizione della massa nel tempo
-  - L'obbiettivo è paragonare 3 tecniche: fkpm, zkpm, pkpm
-  - In che modo? Analizziamo 4 scenari (lineare con e senza noise, non lineare con e senza noise). Generiamo un dataset sintetico per ogni scenario. Con ciascuna delle 3 tecniche affrontiamo i 4 scenari.
-  - Per ciacuna analisi, dire che facciamo 30 ripetizioni per robustezza sul noise. Dove non c'è noise non ci sono ripetizioni
-  - Come è organizzato il repository? 5 file principali: data generation, fkpm, zkpm, pkpm, risultati; 3 file ausiliari: eulero...; 2 file di risultato: RisTab e RisPlot.
-- Data generation:
-  - Cosa fa? Risolve le equazioni differenziali lineare e non lineare "ground truth" con eulero. Crea i dataset (per ogni scenario, 30 iterazioni). Nel file salva anche cose aggiuntive (time, u(t)...)
-- FKPM:
-  - Cosa fa? Risolve l'equazione differenziale con eulero, ma non ha i parametri. Prende il dataset e fa grid search sui parametri in base all'errore prodotto sul dataset.
-  - FKPM usa 1/3 dei dati (fairy comparison).
-  - salva i risultati in due file: FKPM_X_X salva errori, tempi medi, k_best e m_best nelle tabelle (per ciscuna ripetizione), FKRis_X_X salva il vettore della soluzione u(t) dell'ultima ripòetizione
-  - Ciascun run risolve uno scenario. Dire come impostare lo scenario.
-  - Per gli scenari con noise impostare le 30 ripetizioni
-- ZKPM:
-  - Cosa fa? Fitta un polinomio di grado p sui dati con regolarizzazione sull'integrale della derivata seconda. 2 iperparametri p e lambda, trovati con grid search.
-  - Minimizzazione della loss in forma chiusa. 
-  - salva i risultati in due file:  ZKPM_X_X salva errori e tempi medi nelle tabelle (per ciscuna ripetizione), ZKRis_X_X salva il vettore della soluzione u(t) dell'ultima ripòetizione
-  - Ciascun run risolve uno scenario. Dire come impostare lo scenario.
-  - Per gli scenari con noise impostare le 30 ripetizioni
-- PKPM:
-  - Cosa fa? Fitta un polinomio di grado p sui dati con regolarizzazione sull'integrale della derivata seconda e con vincolo fisico sull'equazione differenziale. I parametri dell'equazione differenziale sono corretti nello scenario surrogate, mentre nello scenario modeling sono tunati con FKPM. 3 iperparametri p e lambda1, e lambda2 trovati con grid search.
-  - Minimizzazione della loss in forma chiusa. 
-  - salva i risultati in due file: PKPM_X_X salva errori e tempi medi nelle tabelle (per ciscuna ripetizione), PKRis_X_X salva il vettore della soluzione u(t) dell'ultima ripòetizione
-  - Ciascun run risolve uno scenario. Dire come impostare lo scenario.
-  - Per gli scenari con noise impostare le 30 ripetizioni
-- Risultati
-  - RisPlot: Prende i file FKRis_X_X,ZKRis_X_X,PKRis_X_X e crea un plot unico. Ciascun run risolve uno scenario. Dire come impostare lo scenario.
-  - RisTab: Prende i file FKPM_X_X,ZKPM_X_X,PKPM_X_X e crea le tabelle di: mediana (sulle ripetizioni) dell'errore in interpolazione, mediana (sulle ripetizioni) dell'errore in estrapolazione, varianza (sulle ripetizioni) dell'errore in interpolazione, varianza (sulle ripetizioni) dell'errore in estrapolazione, varianza (sulle ripetizioni) gaussiana dell'errore in interpolazione, varianza gaussiana (sulle ripetizioni) dell'errore in estrapolazione, tempo medio (sulle ripetizioni) di training, tempo medio (sulle ripetizioni) di testing. Ciascuna tabella contiene i dati per ogni scenario.
- 
-
+Experiments were conducted using MATLAB R2023a - Update 6 (9.14.0.2489007) on a Windows 10 machine with Intel(R) Core(TM) i7-8550U and 16 GB of RAM.
 
 ## Underlying physics
 The toy example analyzes a mass-spring-damper system with no external force applied. We consider the case of the mass initially positioned at a specific point $u_0$, that is left free to evolve autonomously over time.
 
 <p align="center">
-<img width='500' src='https://github.com/lucaoneto/PhisicsInformedMassSpringDamper/assets/158032647/119b7700-74e8-4225-94cb-168d1f228c49'>
+<img width='250' src='https://github.com/lucaoneto/PhisicsInformedMassSpringDamper/assets/158032647/119b7700-74e8-4225-94cb-168d1f228c49'>
 </p>
 
-![4]( | width=30)
-
 In the simplest case, a mass-spring-damper system can be described by a second-order differential equation
-$$m \frac{d^2 u(t)}{d t^2} + \mu \frac{d u(t)}{d t} + k_0 u(t) = 0 \quad \text{(Eq1)}$$
-  where $m$ is the mass (measured in $[kg]$), $\mu$ is the damping coefficient (measured in $[\frac{Ns}{m}]$), and $k_0$ is the spring constant.
+$$m \frac{d^2 u(t)}{d t^2} + \mu \frac{d u(t)}{d t} + k_0 u(t) = 0\text{,} \quad \text{(Eq1)}$$
+where $m$ is the mass (measured in $[kg]$), $\mu$ is the damping coefficient (measured in $[\frac{Ns}{m}]$), and $k_0$ is the spring constant.
 
-For scenarios where the linear approximation of the proportional relationship between force and displacement of the spring is insufficient, a more complex representation can be considered
-$$m \frac{d^2 u(t)}{d t^2} + \mu \frac{d u(t)}{d t} + k_1 u(t) + k_2 u^3(t) = 0 \quad \text{(Eq2)}$$
+For scenarios where the linear approximation of the proportional relationship between force and displacement of the spring is insufficient, a more complex representation should be considered
+$$m \frac{d^2 u(t)}{d t^2} + \mu \frac{d u(t)}{d t} + k_1 u(t) + k_2 u^3(t) = 0\text{,} \quad \text{(Eq2)}$$
 where $k_1$ and $k_2$ are the spring linear and nonlinear coefficients (measured in $[\frac{N}{m}]$ and $[\frac{N}{m^3}]$ respectively)
 
 ## Introduction
-We assume to 
-Given a mass-spring-damper system, we assume to have the capability to measure the displacement $u(t)$ of the mass at various moments in time $t$ in the range $[0,t_m]$.
 
-**Our scope is to predict the mass’s position $(u(t))$ at any given time in the range $[0, t_f]$ ($t_f \> t_m$)** 
+**Given a mass-spring-damper system, our scope is to predict the mass’s position $(u(t))$ at any given time in the range $[0, t_f]$** 
 
-We will compare three methods to achive this target: 
-- FKPM
-- ZKPM
-- PKPM
+We will compare three types of predictive model to infer the mass position: 
+- Full-Knowledge Predicitve Model (FKPM);
+- Zero-Knowledge Predicitve Model (ZKPM);
+- Partial-Knowledge Predicitve Model (PKPM).
 
-The measures are stored in the dataset $\mathcal{D}_n = \{ (t_1,u(t_1)), \cdots, (t_n,u(t_n)) \}$. 
-For the scope of this examples, data are synthetically generated. 
+We assume:
+- to know $\text{(Eq1)}$
+- to know the value of the parameter $m$, but not the values of $k_0$ and $\mu$;
+- to know the value of the initial condition $v_0$ (initial velocity equal to $0$), but not the value of $u_0$;
+- to have the capability to measure the displacement $u(t)$ of the mass at various moments in time $t$ in the range $[0,t_m]$ ($t_m \< t_f$).
 
-We analyzed different conditions of:
-- data-generating model ($\text{(Eq1)}$ or $\text{(Eq1)}$) 
-- quality of the measures (presence of noise)
+The measurements of the displacement $u_i(t)$ are stored in the dataset $\mathcal{D}_n = \{ (t_1,u(t_1)), \cdots, (t_n,u(t_n)) \}$. 
+For the scope of this example, the datasets are synthetically generated: $\mathcal{D}_n$ is sampled from the ground truth solution (i.e., solution obtained knowing the value of all the parameters).
 
-Overall, four scenarios are studied:
-- Surrogation scenario with no noise: Dataset $\mathcal{D}^{1, 0}_n$ generated by $\text{(Eq1)}$
-- Surrogation scenario with noise: Dataset $\mathcal{D}^{1, \sigma}_n$ generated by $\text{(Eq1)}$ currupted by noise
-- Modeling scenario with no noise: Dataset $\mathcal{D}^{2, 0}_n$ generated by $\text{(Eq2)}$
-- Modeling scenario with noise: Dataset $\mathcal{D}^{2, \sigma}_n$ generated by $\text{(Eq2)}$ currupted by noise
+The performance of the predictive models are analyzed in different conditions of:
+- data-generating model (ground truth solution of $\text{(Eq1)}$ and $\text{(Eq1)}$);
+- quality of the measures (presence of noise).
 
-In presence of noise, experiemens are repeated 30 times to obtain robust results.
-Even if the noise is randomly generated, the experiment reproducibility is guaranteed by the control of the random seed.
+Four scenarios are studied:
+1. Surrogation scenario with no noise: Dataset $\mathcal{D}^{1, 0}_n$ generated by $\text{(Eq1)}$;
+2. Surrogation scenario with noise: Dataset $\mathcal{D}^{1, \sigma}_n$ generated by $\text{(Eq1)}$ and currupted by Gaussian noise;
+3. Modeling scenario with no noise: Dataset $\mathcal{D}^{2, 0}_n$ generated by $\text{(Eq2)}$;
+4. Modeling scenario with noise: Dataset $\mathcal{D}^{2, \sigma}_n$ generated by $\text{(Eq2)}$ and currupted by Gaussian noise.
 
-Our procedure is the following:
-- Data generation
-- The four scenarios approached with FKPM
-- The four scenarios approached with ZKPM
-- The four scenarios approached with PKPM
-- Analysis of results
+We measured the performance of each predictive model in each scenario.
+In presence of noise, experiemens are repeated 30 times to avoid randomness and obtain robust results.
+Reproducibility is guaranteed by the control of the random seed.
 
-<!---
-## Data Generation
-In Data Generation we stored the script DatGen.m that produces the datasets. 
-The code solves the equations $\text{(Eq1)}$ and $\text{(Eq2)}$ and extract 22 samples for each scenario:
-- Dataset $\mathcal{D}^{1, 0}_n$ from $\text{(Eq1)}$
-- Dataset $\mathcal{D}^{1, \sigma}_n$ from $\text{(Eq1)}$ and adding random noise
-- Dataset $\mathcal{D}^{2, 0}_n$ from $\text{(Eq2)}$
-- Dataset $\mathcal{D}^{2, \sigma}_n$ from $\text{(Eq2)}$ and adding random noise
+Here process outline:
+1. Data generation;
+2. The four scenarios approached with FKPM;
+3. The four scenarios approached with ZKPM;
+4. The four scenarios approached with PKPM;
+5. Analysis of results.
 
-The whole process is repeated 30 times, to average the random effect of the noise.
-Data are saved in 30 files, named DatGen_SeedX.mat.
+## Repository
+The repository cointains five main scripts:
+- [DATGEN.m](DATGEN.m), (Data generation);
+- [FKPM.m](FKPM.m), (FKPM);
+- [ZKPM.m](ZKPM.m), (ZKPM);
+- [PKPM.m](PKPM.m), (PKPM);
+- [RISTAB.m](RISTAB.m), (Table of results);
+- [RISPLOT.m](RISPLOT.m), (Plot of results);
 
-## FKPM
-In FKPM you can find the script FKPM.m, containing the full-knowledge approach.
-This model is built to solve the $\text{(Eq1)}$. 
-We assume to not know the parameters $k_0$, $\mu$, and $u_0$, that are grid searched in the range $[10^{-1}, 10^{3}]$. 
-The algorithm search for the best combination of $k_0$, $\mu$, and $u_0$ that produces the lowest error on the dataset. 
-Note that the dataset used for this approach is reduced by 1/3 with respect to the original (see Section 4 - Illustrative Example).
-The script can be modified, according to the scenario of interest:
-- Surrogation scenario with no noise: to use the Dataset $\mathcal{D}^{1, 0}_n$, lines 11 and 12 must be set as:
-  ```sh
-    D  = D_l_nn;
-    p  = p_l;
-   ```
-  - Surrogation scenario with noise: to use the Dataset $\mathcal{D}^{1, \sigma}_n$, lines 11 and 12 must be set as:
-  ```sh
-    D  = D_l_n;
-    p  = p_l;
-   ```
-  - Modeling scenario with no noise: to use the Dataset $\mathcal{D}^{2, 0}_n$, lines 11 and 12 must be set as:
-  ```sh
-    D  = D_nl_nn;
-    p  = p_nl;
-   ```
-  - Modeling scenario with noise: to use the Dataset $\mathcal{D}^{2, \sigma}_n$, lines 11 and 12 must be set as:
-  ```sh
-    D  = D_nl_n;
-    p  = p_nl;
-   ```
-To average the random noise effect, the script performs 30 repetitions (line 6):
-```sh
-for seed=1:30
+four utility scripts:
+- scenario_selection.m (UI for the scenario selection);
+- linear_mass_spring_damper.m ($\text{(Eq1)}$);
+- nonlinear_mass_spring_damper.m ($\text{(Eq2)}$);
+- euler_solver.m (Differential equation Euler-method solver);
+
+and two folders:
+- Data (Containing the datasets);
+- Results (Contining the results).
+
+## Code
+### `DATGEN.m`
+`DATGEN.m` solves the ground truth solutions $\text{(Eq1)}$ and $\text{(Eq2)}$, samples the datasets $\mathcal{D}^{1, 0}_n$, $\mathcal{D}^{1, \sigma}_n$, $\mathcal{D}^{2, 0}_n$, and $\mathcal{D}^{2, \sigma}_n$, plots the solutions and saves the datasets in the folder Data.
+
+The differential equations $\text{(Eq1)}$ and $\text{(Eq2)}$ are solved with the Euler method.
+For both solutions the script samples 22 points equally spaced in the range $[0,t_m]$, creating the datasets $\mathcal{D}^{1, 0}_n$ and $\mathcal{D}^{2, 0}_n$.
+Datasets $\mathcal{D}^{1, \sigma}_n$ and $\mathcal{D}^{2, \sigma}_n$ are obtained by adding random noise (intensity factor $\sigma=0.1$) to the sampled $u_i(t)$.
+The script performs the random noise addition for 30 repetitions and saves a file `DatGen_Seed_X.mat` for each repetition (where `X` is the repetition number).
+Each file contains the datasets $\mathcal{D}^{1, 0}_n$ (`D_l_nn`), $\mathcal{D}^{1, \sigma}_n$ (`D_l_n`), $\mathcal{D}^{2, 0}_n$ (`D_nl_nn`), and $\mathcal{D}^{2, \sigma}_n$ (`D_nl_n`), the value of $m$ (`m`), the vector of the time instants of function evaluation (`t`), the solution $u(t)$ of $\text{(Eq1)}$ and $\text{(Eq2)}$ (`u_l` and `u_nl`), the integration step (`dt`), the number of integration steps (`num_steps`), the step number of $t_m$ (`itm`), and the step number of the sampled data (`ix`):
+For the last repetition, `DATGEN.m` also plots the ground truth solution of $\text{(Eq1)}$ and $\text{(Eq2)}$, the comparison plot, and some of the sampled points.
+
+### `FKPM.m`
+`FKPM.m` is the full-knowledge approach.
+
+When the user runs `FKPM.m`, the interface ask for the selection of the scenario between: Surrogation scenario with no noise, Surrogation scenario with noise, Modeling scenario with no noise, Modeling scenario with noise.
+According to the selected scenario, the model loads a different dataset ($\mathcal{D}^{1, 0}_n$, $\mathcal{D}^{1, \sigma}_n$, $\mathcal{D}^{2, 0}_n$, and $\mathcal{D}^{2, \sigma}_n$).
+Note that the FKPM is performed with reduced datasets (one every two samples), since it is usually chosen in presence of few historical samples:
+```matlab
+D_FKPM = D(1:2:end,:);
 ```
-In scenarios with no noise, all the repetitions are identical. Then, it is convenient to perform only 1 repetition by setting line 6 as:
-```sh
-for seed=1:1
-```
-According to the selected scenario, the script will save 2 files:
-- FKPM_X_X containing the evalutation of MAE is interpolation $[0,t_m]$ and extrapolation $(t_m, t_f]$, and the best values of $k_0$, $\mu$ for each repetition of the selected scenario 
-- FKris_X_X containing the predicted $u(t)$ of the last repetition
-  
-## ZKPM
-In ZKPM you can find the script ZKPM.m, containing the zero-knowledge approach.
-We implemented a data-driven technique of structural risk minimization.
-The functional form is a polynomial:
-$$f(x) = \sum_{i= 0}^p w_i x^i$$
-The loss function is defined as (see Section 4 - Illustrative Example):
+We assume that the parameters $k_0$, $\mu$, and $u_0$ are unknown.
+The script grid-searches the parameters in the range $[10^{-1}, 10^{3}]$.
+For each combination of $k_0$, $\mu$, and $u_0$, the script solves the $\text{(Eq1)}$ with the Euler method and computes the error committed in predicting the values of $u_i(t)$ of the datasets.
+The combination of $k_0$, $\mu$, and $u_0$ that produces the lowest error was chosen as the best.
+`FKPM.m` solves the $\text{(Eq1)}$ with the best combination of parameters and computes the error committed in interpolation (interval $[0,t_m]$) and extapolation (interval $[t_m,t_f]$) with respect to the ground truth solution.
+For scenarios in which the dataset is corrupted by noise, the procedure is repeated 30 times.
+When the dataset has no noise only 1 repetition is performed.
+The results are saved in the file `FKRes_Y.mat` (where `Y` indicates the scenario: `_l_nn` for Surrogation scenario with no noise, `_l_n` for Surrogation scenario with noise, `_nl_nn` for Modeling scenario with no noise, and `_nl_n` for Modeling scenario with noise) in the folder Results.
+The file contains the errors in interpolation and extapolation for each repetition (`err_int` and `err_est`), the mean time of training and testing (`time_train` and `time_test`), the dataset (`D`), the vector of the time instants of function evaluation (`t`), the ground truth solution (`u`) and the best predcited by FKPM (`u_p`).
+The script plots the comparison between the ground truth solution and the best predicted, with the dataset points.
+
+### `ZKPM.m`
+`ZKPM.m` is the zero-knowledge approach.
+
+When the user runs `ZKPM.m`, the interface ask for the selection of the scenario between: Surrogation scenario with no noise, Surrogation scenario with noise, Modeling scenario with no noise, Modeling scenario with noise.
+According to the selected scenario, the model loads a different dataset ($\mathcal{D}^{1, 0}_n$, $\mathcal{D}^{1, \sigma}_n$, $\mathcal{D}^{2, 0}_n$, and $\mathcal{D}^{2, \sigma}_n$).
+
+`ZKPM.m` contains a regularized polynomial regression algorithm, with functional form:
+$$f(x) = \sum_{i= 0}^p w_i x^i$$.
+The model parameters are $w_i$.
+The loss function 
 $$l(w)= \quad \|| X \boldsymbol{w} - \boldsymbol{y} \||^2 + \lambda \boldsymbol{w}' C \boldsymbol{w}$$
-The loss can be minimized in closed form:
+can be minimized in closed form (For further details, see Section 4 - Illustrative Example):
 $$\boldsymbol{w} = (X' X + \lambda C)^+ X' \boldsymbol{y}$$
-The model has two hyperparameters: the polynomial grad $p$ and the regularization coefficient $\lambda$.
-They are optimized on the validation set, built adopting the leave-one-out method.
-The script can be modified, according to the scenario of interest:
-- Surrogation scenario with no noise: to use the Dataset $\mathcal{D}^{1, 0}_n$, lines 11 and 12 must be set as:
-  ```sh
-    D  = D_l_nn;
-    p  = p_l;
-   ```
-  - Surrogation scenario with noise: to use the Dataset $\mathcal{D}^{1, \sigma}_n$, lines 11 and 12 must be set as:
-  ```sh
-    D  = D_l_n;
-    p  = p_l;
-   ```
-  - Modeling scenario with no noise: to use the Dataset $\mathcal{D}^{2, 0}_n$, lines 11 and 12 must be set as:
-  ```sh
-    D  = D_nl_nn;
-    p  = p_nl;
-   ```
-  - Modeling scenario with noise: to use the Dataset $\mathcal{D}^{2, \sigma}_n$, lines 11 and 12 must be set as:
-  ```sh
-    D  = D_nl_n;
-    p  = p_nl;
-   ```
-To average the random noise effect, the script performs 30 repetitions (line 6):
-```sh
-for seed=1:30
-```
-In scenarios with no noise, all the repetitions are identical. Then, it is convenient to perform only 1 repetition by setting line 6 as:
-```sh
-for seed=1:1
-```
-According to the selected scenario, the script will save 2 files:
-- ZKPM_X_X containing the evalutation of MAE is interpolation $[0,t_m]$ and extrapolation $(t_m, t_f]$, for each repetition of the selected scenario 
-- ZKris_X_X containing the predicted $u(t)$ of the last repetition
+The model hyperparameters are the polynomial grade $p$ and the regularization coefficient $\lambda$.
+For the hyperparameters tuning, the script performs a cross-validation with the technique of leave-one-out.
+The procedure of optimization of the weights is performed using a dataset obtained from the original dataset leaving one data out.
+Then, the error of the obtained polynomial is evaluated on the data left out.
+This procedure is repeated for each data in the dataset, computing the mean of computed the error.
+The combination of the hyperpatameters that produces the lowest mean error is chosen as the best.
+Finally, the weights $\boldsymbol{w}$ are optimized on the whole dataset using the best hyperpatameters.
+`ZKPM.m` infer the predicted solution and computes the error committed in interpolation (interval $[0,t_m]$) and extapolation (interval $[t_m,t_f]$) with respect to the ground truth solution.
+For scenarios in which the dataset is corrupted by noise, the whole process is repeated 30 times.
+When the dataset has no noise only 1 repetition is performed.
+The results are saved in the file `ZKRes_Y.mat` (where `Y` indicates the scenario: `_l_nn` for Surrogation scenario with no noise, `_l_n` for Surrogation scenario with noise, `_nl_nn` for Modeling scenario with no noise, and `_nl_n` for Modeling scenario with noise) in the folder Results.
+The file contains the errors in interpolation and extapolation for each repetition (`err_int` and `err_est`), the mean time of training and testing (`time_train` and `time_test`), the dataset (`D`), the vector of the time instants of function evaluation (`t`), the ground truth solution (`u`) and the one predcited by ZKPM (`u_p`).
+The script plots the comparison between the ground truth solution and the best predicted, with the dataset points.
 
--->
+### `PKPM.m`
+`PKPM.m` is the partial-knowledge approach.
+
+When the user runs `PKPM.m`, the interface ask for the selection of the scenario between: Surrogation scenario with no noise, Surrogation scenario with noise, Modeling scenario with no noise, Modeling scenario with noise.
+According to the selected scenario, the model loads a different dataset ($\mathcal{D}^{1, 0}_n$, $\mathcal{D}^{1, \sigma}_n$, $\mathcal{D}^{2, 0}_n$, and $\mathcal{D}^{2, \sigma}_n$).
+
+PKPM combines FKPM and ZKPM.
+`PKPM.m`, as ZKPM, contains a regularized polynomial regression algorithm, with functional form:
+$$f(x) = \sum_{i= 0}^p w_i x^i$$.
+The loss function of PKPM is different, since it contains a physical regularization term (For further details, see Section 4 - Illustrative Example):
+$$l(w)= \quad \|| X \boldsymbol{w} - \boldsymbol{y} \||^2 + \lambda_1 \boldsymbol{w}' C \boldsymbol{w} + \lambda_2 \boldsymbol{w}' P \boldsymbol{w}$$
+Again, the loss minimization can be performed in closed form:
+$$\boldsymbol{w} = (X' X + \lambda_1 C + \lambda_2 P)^+ X' \boldsymbol{y}$$
+The physical regularization constraint requires to know the value of the parameters $k_0$, $\mu$, and $u_0$.
+In scenarios of Surrogation, we assume to know the exact values of $k_0$, $\mu$, and $u_0$.
+In scenarios of Modeling, the values of $k_0$, $\mu$, and $u_0$ are tuned as done in FKPM using the complete dataset.
+The model hyperparameters are the polynomial grade $p$, the regularization coefficient $\lambda_1$, and the physical regularization coefficient $\lambda_2$.
+For the hyperparameters tuning, the script performs a cross-validation with the technique of leave-one-out, in the same manner of ZKPM.
+Once the best hyperparameters are identified, the weights $\boldsymbol{w}$ are optimized on the whole dataset using the best hyperpatameters.
+PKPM.m infer the predicted solution and computes the error committed in interpolation (interval $[0,t_m]$) and extapolation (interval $[t_m,t_f]$) with respect to the ground truth solution.
+For scenarios in which the dataset is corrupted by noise, the whole process is repeated 30 times.
+When the dataset has no noise only 1 repetition is performed.
+The results are saved in the file `PKRes_Y.mat` (where `Y` indicates the scenario: `_l_nn_surr` for Surrogation scenario with no noise, `_l_n_surr` for Surrogation scenario with noise, `_nl_nn` for Modeling scenario with no noise, and `_nl_n` for Modeling scenario with noise) in the folder Results.
+The file contains the errors in interpolation and extapolation for each repetition (`err_int` and `err_est`), the mean time of training and testing (`time_train` and `time_test`), the dataset (`D`), the vector of the time instants of function evaluation (`t`), the ground truth solution (`u`) and the best predcited by PKPM (`u_p`).
+The script plots the comparison between the ground truth solution and the best predicted, with the dataset points.
+
+### `RESPLOT.m`
+`RESPLOT.m` is used to plot and compare the predicted solutions.
+
+When the user runs `PKPM.m`, the interface ask for the selection of the scenario between: Surrogation scenario with no noise, Surrogation scenario with noise, Modeling scenario with no noise, Modeling scenario with noise.
+According to the selected scenario, the script loads the results of FKPM, ZKPM, and PKPM for the corresponding scenario.
+
+The script plots the ground truth, the dataset and the three predicted solution in the same graph and saves the image.
+
+### `RESTAB.m`
+`RESPLOT.m` is used to create a table of the results.
+
+The script loads the results of FKPM, ZKPM, and PKPM in all the scenarios and creates a table containing all the results.
+For scenarios with results for 30 repetitions, statistical results are reported, in particular:
+- Median of the errors in interpolation and extrapolation;
+- Mean of the errors in interpolation and extrapolation;
+- Variance of the errors in interpolation and extrapolation;
+- Standard deviation (assuming a Gaussian distribution) of the errors in interpolation and extrapolation;
+- Mean of the time of training;
+- Mean of the time of testing.

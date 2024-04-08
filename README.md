@@ -1,4 +1,4 @@
-# PhisicsInformedMassSpringDamper 
+# PhysicsInformedMassSpringDamper 
 
 In this repository, you can find the code of the toy example proposed in the paper "A Review on Full-, Zero-, and Partial-Knowledge based Predictive Models for Industrial Applications" (Section 4 - Illustrative Example).
 
